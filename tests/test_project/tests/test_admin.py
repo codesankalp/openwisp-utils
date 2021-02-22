@@ -7,9 +7,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django.urls import reverse
 from openwisp_utils.admin import ReadOnlyAdmin
-from openwisp_utils.admin_theme import register_dashboard_element
+from openwisp_utils.admin_theme import register_dashboard_chart
 from openwisp_utils.admin_theme import settings as admin_theme_settings
-from openwisp_utils.admin_theme import unregister_dashboard_element
+from openwisp_utils.admin_theme import unregister_dashboard_chart
 from openwisp_utils.admin_theme.apps import OpenWispAdminThemeConfig
 from openwisp_utils.admin_theme.checks import admin_theme_settings_checks
 
@@ -261,7 +261,7 @@ class TestAdmin(TestCase, CreateMixin):
         with self.subTest('Test with logged in user'):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.url, reverse('admin:ow_dashboard'))
+            self.assertEqual(response.url, reverse('admin:index'))
 
         with self.subTest('Test with logged out user'):
             self.client.logout()
@@ -270,14 +270,14 @@ class TestAdmin(TestCase, CreateMixin):
             self.assertContains(response, 'login')
 
     def test_ow_dashboard(self):
-        response = self.client.get(reverse('admin:ow_dashboard'))
+        response = self.client.get(reverse('admin:index'))
         self.assertContains(response, 'Operator Project Distribution')
         self.assertContains(response, '\'values\': [1, 1]')
         self.assertContains(response, '\'labels\': [\'User\', \'Utils\']')
         self.assertContains(response, '\'colors\': [\'orange\', \'red\']')
 
     def test_ow_dashboard_non_existent_model(self):
-        register_dashboard_element(
+        register_dashboard_chart(
             -1,
             {
                 'name': 'Test Chart',
@@ -289,8 +289,8 @@ class TestAdmin(TestCase, CreateMixin):
             },
         )
         with self.assertRaises(ImproperlyConfigured):
-            self.client.get(reverse('admin:ow_dashboard'))
-        unregister_dashboard_element('Test Chart')
+            self.client.get(reverse('admin:index'))
+        unregister_dashboard_chart('Test Chart')
 
     @patch('openwisp_utils.admin_theme.settings.ADMIN_DASHBOARD_ENABLED', False)
     def test_disabling_dashboard(self):
