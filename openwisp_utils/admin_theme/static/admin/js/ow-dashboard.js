@@ -12,18 +12,16 @@
       b: 0
     },
     legend: {
-      yanchor: 'bottom',
-      xanchor: 'center',
+      yanchor: 'center',
+      xanchor: 'left',
       x: 0,
-      y: -0.05,
+      y: 0,
       bgcolor: 'transparent'
     },
     title: {
-      yanchor: 'top',
+      yanchor: 'center',
       y: 0.92,
-      font: {
-          size: 20
-      }
+      font: {size: 20}
     }
   },
   options = {
@@ -51,6 +49,14 @@
     } else {
       data.values = elementsParam[i].query_params.values;
       data.labels = elementsParam[i].query_params.labels;
+
+      if (data.labels.length > 4) {
+        data.showlegend = false;
+      }
+      data.rotation = 180;
+      data.textposition = 'inside';
+      data.insidetextorientation = 'horizontal';
+
       if (elementsParam[i].colors) {
         data.marker = {
           colors: elementsParam[i].colors
@@ -97,10 +103,4 @@
     container.appendChild(element);
   }
 
-  // $(document).ready(function () {
-  //     var allLinks = $('#content-main, #content-related');
-  //     $('#quick-menu').click(function(){
-  //         allLinks.show();
-  //     });
-  // });
 })(django.jQuery);
