@@ -1,4 +1,9 @@
-from openwisp_utils.admin_theme import register_dashboard_chart
+from django.db.models import Case, Count, Sum, When
+from django.utils.translation import ugettext_lazy as _
+from openwisp_utils.admin_theme import (
+    register_dashboard_chart,
+    register_dashboard_template,
+)
 from openwisp_utils.api.apps import ApiAppConfig
 from openwisp_utils.utils import register_menu_items
 
@@ -28,12 +33,56 @@ class TestAppConfig(ApiAppConfig):
         register_dashboard_chart(
             position=0,
             config={
-                'name': 'Operator Project Distribution',
+                'name': _('Operator Project Distribution'),
                 'query_params': {
                     'app_label': 'test_project',
                     'model': 'operator',
                     'group_by': 'project__name',
                 },
                 'colors': {'Utils': 'red', 'User': 'orange'},
+                'labels': {'Utils': _('Utils'), 'User': _('User'),},
+            },
+        )
+        register_dashboard_chart(
+            position=1,
+            config={
+                'name': _('Operator presence in projects'),
+                'query_params': {
+                    'app_label': 'test_project',
+                    'model': 'project',
+                    'annotate': {
+                        'with_operator': Count(
+                            Case(When(operator__isnull=False, then=1,))
+                        ),
+                        'without_operator': Count(
+                            Case(When(operator__isnull=True, then=1,))
+                        ),
+                    },
+                    'aggregate': {
+                        'with_operator__sum': Sum('with_operator'),
+                        'without_operator__sum': Sum('without_operator'),
+                    },
+                },
+                'colors': {
+                    'with_operator__sum': '#267126',
+                    'without_operator__sum': '#353c44',
+                },
+                'labels': {
+                    'with_operator__sum': _('Projects with operators'),
+                    'without_operator__sum': _('Projects without operators'),
+                },
+                'filters': {
+                    'key': 'with_operator',
+                    'with_operator__sum': 'true',
+                    'without_operator__sum': 'false',
+                },
+            },
+        )
+        register_dashboard_template(
+            position=0,
+            config={
+                'template': 'dashboard_test.html',
+                'css': ('dashboard-test.css',),
+                'js': ('dashboard-test.js',),
             },
         )

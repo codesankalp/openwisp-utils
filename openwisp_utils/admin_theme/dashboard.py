@@ -160,9 +160,6 @@ def get_dashboard_context(request):
 
         if group_by:
             for obj in qs:
-                # skip if no data
-                if obj['count'] == 0:
-                    continue
                 qs_key = str(obj[group_by])
                 label = qs_key
                 # get human readable label if predefined labels are available
